@@ -26,18 +26,9 @@ spec:
             - containerPort: 9002
           env:
             - name: SPRING_CLOUD_CONFIG_URI
-              value: http://config-service:80
-            - name: SPRING_R2DBC_URL
-              value: r2dbc:postgresql://polar-postgres:5432/polardb_order
-            - name: SPRING_R2DBC_USERNAME
-              value: user
-            - name: SPRING_R2DBC_PASSWORD
-              value: password
-            - name: SPRING_FLYWAY_URL
-              value: jdbc:postgresql://polar-postgres:5432/polardb_order
-            - name: SPRING_FLYWAY_USER
-              value: user
-            - name: SPRING_FLYWAY_PASSWORD
-              value: password
-            - name: POLAR_CATALOG_SERVICE_URI
-              value: http://catalog-service
+              value: http://config-service
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            # Если хочешь, чтобы он падал при отсутствии конфиг-сервера
+            - name: SPRING_CLOUD_CONFIG_FAIL_FAST
+              value: "true"
