@@ -75,7 +75,7 @@ class OrderServiceApplicationTests {
         registry.add("spring.flyway.url", postgresql::getJdbcUrl);
 
         registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                () -> keycloakContainer.getAuthServerUrl() + "/realms/PolarBookshop");
+                () -> keycloakContainer.getAuthServerUrl() + "realms/PolarBookshop");
     }
 
     private static String r2dbcUrl() {
