@@ -6,8 +6,6 @@ import com.polarbookshop.order_service.order.event.OrderAcceptedMessage;
 import com.polarbookshop.order_service.order.event.OrderDispatchedMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,10 +46,14 @@ public class OrderService {
 
     public Flux<Order> consumeOrderDispatchedEvent(Flux<OrderDispatchedMessage> flux) {
         return flux.flatMap(
-                message ->
-                        orderRepository.findById(message.orderId())
-        ).map(this::buildDispatchedOrder)
+                        message ->
+                                orderRepository.findById(message.orderId())
+                ).map(this::buildDispatchedOrder)
                 .flatMap(orderRepository::save);
+    }
+
+    public Flux<Order> getAllOrders(String userId) {
+        return orderRepository.findAllByCreatedBy(userId);
     }
 
     private Order buildDispatchedOrder(Order existingOrder) {
@@ -64,12 +66,14 @@ public class OrderService {
                 OrderStatus.DISPATCHED,
                 existingOrder.createdDate(),
                 existingOrder.lastModifiedDate(),
+                existingOrder.createdBy(),
+                existingOrder.lastModifiedBy(),
                 existingOrder.version()
         );
     }
 
     private void publishOrderAcceptedEvent(Order order) {
-        if(!order.status().equals(OrderStatus.ACCEPTED)) {
+        if (!order.status().equals(OrderStatus.ACCEPTED)) {
             return;
         }
         var orderAccepted = new OrderAcceptedMessage(order.id());
