@@ -18,6 +18,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	opentelemetryAgent
 }
 
 repositories {
@@ -28,6 +29,7 @@ ext {
 	set('springCloudVersion', "2025.0.1")
 	set('testcontainersVersion', "1.17.3")
 	set('testKeycloakVersion', "2.3.0")
+	set('otelVersion', "1.17.0")
 }
 
 dependencies {
@@ -59,6 +61,7 @@ dependencies {
 	testImplementation "com.github.dasniko:testcontainers-keycloak:${testKeycloakVersion}"
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	runtimeOnly 'io.github.resilience4j:resilience4j-micrometer'
+	opentelemetryAgent "io.opentelemetry.javaagent:opentelemetry-javaagent:${otelVersion}"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -86,4 +89,14 @@ bootBuildImage{
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.register('copyAgent', Copy) {
+	from configurations.opentelemetryAgent
+	into layout.buildDirectory.dir("agent")
+	rename { "opentelemetry-javaagent.jar" }
+}
+
+tasks.named('bootJar') {
+	dependsOn tasks.named('copyAgent')
 }
